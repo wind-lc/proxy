@@ -3,7 +3,7 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-21 17:33:38
- * @LastEditTime: 2021-12-21 19:12:24
+ * @LastEditTime: 2021-12-22 12:44:50
  * @FilePath: \proxy\src\proxy.ts
  */
 import * as Koa from 'koa';
@@ -27,7 +27,6 @@ export default function (port: number, target: string, exportLog: Function): Pro
         )(ctx, next);
         const log = JSON.parse(JSON.stringify(ctx));
         log.target = target;
-        // getCtx({ type: 'log', info: c });
         exportLog(log);
         await next();
       })

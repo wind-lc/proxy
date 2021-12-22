@@ -3,13 +3,13 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-20 11:17:06
- * @LastEditTime: 2021-12-21 21:37:46
+ * @LastEditTime: 2021-12-22 13:42:01
  * @FilePath: \proxy\media\sidebarProvider.js
  */
 (function () {
   // 获取dom
-  const port = document.querySelector('#proxy-port');
-  const target = document.querySelector('#proxy-target');
+  const proxyPort = document.querySelector('#proxy-port');
+  const proxyTarget = document.querySelector('#proxy-target');
   const create = document.querySelector('.create-btn');
   const log = document.querySelector('.log-container');
   const clear = document.querySelector('.clear-btn');
@@ -42,7 +42,7 @@
     list.innerHTML = '';
     proxyList.forEach(({ _connectionKey }) => {
       const arr = _connectionKey.split(':');
-      const port = arr[arr.length - 1];
+      const port = Number(arr[arr.length - 1]);
       p.innerText = port;
       const item = li.cloneNode(true);
       if (port === logPort) {
@@ -54,13 +54,26 @@
     document.querySelectorAll('.i-log').forEach(el => {
       el.onclick = (e) => {
         const node = e.target;
-        logPort = node.previousElementSibling.innerText;
-        const li = node.parentNode.parentNode.children;
-        for (let i = 0; i < li.length; i++) {
-          li[i].removeAttribute('class');
+        // 不是点击当前日志服务器
+        if ((node.parentNode.getAttribute('class')?.indexOf('proxy-log') ?? -1) < 0) {
+          logPort = Number(node.previousElementSibling.innerText);
+          const li = node.parentNode.parentNode.children;
+          for (let i = 0; i < li.length; i++) {
+            li[i].removeAttribute('class');
+          }
+          node.parentNode.setAttribute('class', 'proxy-log');
+          log.innerHTML = logList[logPort] ? logList[logPort].join('') : '';
         }
-        node.parentNode.setAttribute('class', 'proxy-log');
-        log.innerHTML = logList[logPort] ? logList[logPort].join('') : '';
+      };
+    });
+    document.querySelectorAll('.i-close').forEach(el => {
+      el.onclick = (e) => {
+        vs.postMessage({
+          type: 'close',
+          value: {
+            port: e.target.parentNode.children[0].innerText
+          }
+        });
       };
     });
   };
@@ -88,8 +101,18 @@
         const { origin, host, target, method, url, port } = value;
         const text = `[${method}]${origin}=>${host}=>${target}${url}\n`;
         saveLog(port, text);
-        if (port === logPort) {
+        if (Number(port) === logPort) {
           log.innerHTML += text;
+        }
+        break;
+      }
+      // 清空日志
+      case 'clearLog': {
+        value.forEach(el => {
+          delete logList[el];
+        });
+        if (value.includes(logPort)) {
+          log.innerHTML = '';
         }
         break;
       }
@@ -97,7 +120,7 @@
       case 'proxy': {
         const { proxy, port } = value;
         proxyList = proxy.reverse();
-        logPort = port;
+        logPort = Number(port);
         updateList();
         break;
       }
@@ -105,19 +128,41 @@
   });
   // 创建代理
   create.onclick = () => {
-    vs.postMessage({
-      type: 'create',
-      value: {
-        port: port.value,
-        target: target.value
+    const reg = /(http|https):\/\/([\w.]+\/?)\S*/;
+    const port = Number(proxyPort.value);
+    const target = proxyTarget.value;
+    if (!isNaN(port) && port > 0 && port <= 65535) {
+      if (reg.test(target)) {
+        vs.postMessage({
+          type: 'create',
+          value: {
+            port,
+            target
+          }
+        });
+      } else {
+        vs.postMessage({
+          type: 'error',
+          value: '请输入合法的代理地址'
+        });
       }
-    });
+    } else {
+      vs.postMessage({
+        type: 'error',
+        value: '请输入合法的端口号'
+      });
+    }
   };
   // 清空日志
   clear.onclick = () => {
-    // vs.postMessage({
-    //   type: 'clear',
-    //   value: {}
-    // });
+    vs.postMessage({
+      type: 'clear',
+      value: {
+        list: proxyList.map(el => {
+          const arr = el._connectionKey.split(':');
+          return arr[arr.length - 1];
+        })
+      }
+    });
   };
 }());

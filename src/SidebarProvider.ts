@@ -3,10 +3,10 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-20 11:06:45
- * @LastEditTime: 2021-12-21 20:56:10
+ * @LastEditTime: 2021-12-22 13:22:47
  * @FilePath: \proxy\src\SidebarProvider.ts
  */
-import { Server } from "http";
+import { Server } from "node:http";
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
 import proxy from "./proxy";
@@ -51,7 +51,43 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         }
         // 清空日志
         case 'clear': {
-          console.log(this.proxyList);
+          const { list } = data.value;
+          vscode.window.showQuickPick(
+            list,
+            {
+              canPickMany: true,
+              ignoreFocusOut: true,
+              placeHolder: '选择需要清空日志的代理服务器',
+              title: '清空日志'
+            }).then(list => {
+              this._view?.webview.postMessage({
+                type: 'clearLog',
+                value: list
+              });
+            });
+          break;
+        }
+        // 关闭代理服务器
+        case 'close': {
+          const { port } = data.value;
+          const index = this.proxyList.findIndex(el => JSON.parse(JSON.stringify(el))._connectionKey.indexOf(port) > 0);
+          this.proxyList[index].close(() => {
+            this.proxyList.splice(index, 1);
+            this._view?.webview.postMessage({
+              type: 'clearLog',
+              value: [port]
+            });
+            vscode.window.showInformationMessage(`${port}代理服务器已关闭`);
+            this._view?.webview.postMessage({
+              type: 'proxy',
+              value: { proxy: this.proxyList, port: null }
+            });
+          });
+          break;
+        }
+        // 关闭代理服务器
+        case 'error': {
+          vscode.window.showErrorMessage(data.value);
           break;
         }
       }
@@ -89,15 +125,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         <main>
           <section class="proxy-form">
             <label for="proxy-port">端口号：</label>
-            <input id="proxy-port" type="text" placeholder="0-65535" value="9124"/>
+            <input id="proxy-port" type="text" placeholder="0-65535"/>
             <label for="proxy-target">代理地址：</label>
-            <input id="proxy-target" type="text" placeholder="http://xxx.xxx" value="http://mzuul.zj8j.cddev.cddpi.com"/>
+            <input id="proxy-target" type="text" placeholder="http://xxx.xxx"/>
             <button class="create-btn">创建代理</button>
           </section>
           <p class="proxy-title">代理服务器列表：</p>
-          <ul class="proxy-list">
-            
-          </ul>
+          <ul class="proxy-list"></ul>
           <p class="proxy-title">日志详情：</p>
           <textarea class="log-container" readonly></textarea>
           <button class="clear-btn">清空日志</button>
