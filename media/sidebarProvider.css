@@ -1,0 +1,149 @@
+html,body{
+  height: 100%;
+  overflow: hidden;
+}
+main{
+  display: flex;
+  height: 100%;
+  margin: 0;
+  flex-direction: column;  
+}
+.proxy-form{
+  padding: 10px 0;
+}
+.proxy-form input{
+  margin: 10px 0;
+}
+.proxy-list{
+  height: 20%;
+  background-color: var(--vscode-input-background);
+  margin-bottom: 10px;
+  padding: 0;
+  overflow-y: auto;
+}
+.proxy-list li{
+  list-style-type: none;
+  height: 30px;
+  line-height: 30px;
+  border-bottom: 1px solid var(--vscode-editor-background);
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.proxy-log::before{
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--vscode-button-hoverBackground);
+  animation: ant-progress-active 2.4s cubic-bezier(.23,1,.32,1) infinite;
+  -webkit-animation: ant-progress-active 2.4s cubic-bezier(.23,1,.32,1) infinite;
+}
+@keyframes ant-progress-active{
+  0%{
+    width: 0;
+    opacity: .1;
+  }
+  50%{
+    width: 0;
+    opacity: 1;
+  }
+  to{
+    width: 100%;
+    opacity: 0;
+  }
+}
+@-webkit-keyframes ant-progress-active{
+  0%{
+    width: 0;
+    opacity: .1;
+  }
+  50%{
+    width: 0;
+    opacity: 1;
+  }
+  to{
+    width: 100%;
+    opacity: 0;
+  }
+}
+.proxy-list li:hover{
+  background: var(--vscode-button-hoverBackground);
+}
+.proxy-list li p{
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+.proxy-list li i{
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  z-index: 1;
+  margin-left: 10px;
+}
+.proxy-list li .i-log{
+  border: 1px solid var(--vscode-foreground);
+  width: 12px;
+  height: 12px;
+}
+.i-log::before,.i-log::after{
+  content: "";
+  display: block;
+  width: 6px;
+  height: 1px;
+  background: var(--vscode-foreground);
+  position: absolute;
+  top: 3px;
+  left: 0;
+}
+.i-log::before{
+  top: 6px;
+}
+.i-close{
+  transform: rotate(45deg);
+}
+.i-close::before{
+  content: "";
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--vscode-foreground);
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin-top: -0.5px;
+}
+.i-close::after{
+  content: "";
+  display: block;
+  width: 1px;
+  height: 100%;
+  background: var(--vscode-foreground);
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: -0.5px;
+}
+.proxy-title{
+  margin-bottom: 10px;
+}
+.log-container{
+  padding-bottom: 10px;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline:none;
+  resize:none;
+  margin-bottom: 10px;
+}
+.clear-btn{
+  margin-bottom: 10px;
+}
+
+

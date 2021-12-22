@@ -1,8 +1,12 @@
 {
-  "name": "proxy",
+	"name": "proxy",
 	"displayName": "proxy",
 	"description": "This is a proxy server",
+	"keywords": [
+		"proxy"
+	],
 	"version": "0.0.1",
+	"publisher": "wind-lc",
 	"engines": {
 		"vscode": "^1.63.0"
 	},
@@ -10,16 +14,31 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:proxy.helloWorld"
+		"*"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-		"commands": [
-			{
-				"command": "proxy.helloWorld",
-				"title": "Hello World"
-			}
-		]
+		"commands": [],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "proxy-sidebar-view",
+					"title": "Proxy",
+					"icon": "media/server-environment.svg"
+				}
+			]
+		},
+		"views": {
+			"proxy-sidebar-view": [
+				{
+					"type": "webview",
+					"id": "proxy-sidebar",
+					"name": "Proxy",
+					"icon": "media/server-environment.svg",
+					"contextualTitle": "Proxy"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",
@@ -30,16 +49,26 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.63.0",
 		"@types/glob": "^7.1.4",
+		"@types/koa": "^2.13.4",
+		"@types/koa-bodyparser": "^4.3.4",
+		"@types/koa-static": "^4.0.2",
 		"@types/mocha": "^9.0.0",
 		"@types/node": "14.x",
+		"@types/vscode": "^1.63.0",
 		"@typescript-eslint/eslint-plugin": "^5.1.0",
 		"@typescript-eslint/parser": "^5.1.0",
+		"@vscode/test-electron": "^1.6.2",
 		"eslint": "^8.1.0",
 		"glob": "^7.1.7",
 		"mocha": "^9.1.3",
-		"typescript": "^4.4.4",
-		"@vscode/test-electron": "^1.6.2"
+		"typescript": "^4.4.4"
+	},
+	"dependencies": {
+		"http-proxy-middleware": "^2.0.1",
+		"koa": "^2.9.0",
+		"koa-bodyparser": "^4.3.0",
+		"koa-static": "^5.0.0",
+		"koa2-proxy-middleware": "^0.0.4"
 	}
 }
