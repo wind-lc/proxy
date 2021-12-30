@@ -3,7 +3,7 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-20 11:06:45
- * @LastEditTime: 2021-12-22 13:22:47
+ * @LastEditTime: 2021-12-22 17:39:29
  * @FilePath: \proxy\src\SidebarProvider.ts
  */
 import { Server } from "node:http";
@@ -71,17 +71,17 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         case 'close': {
           const { port } = data.value;
           const index = this.proxyList.findIndex(el => JSON.parse(JSON.stringify(el))._connectionKey.indexOf(port) > 0);
-          this.proxyList[index].close(() => {
-            this.proxyList.splice(index, 1);
-            this._view?.webview.postMessage({
-              type: 'clearLog',
-              value: [port]
-            });
-            vscode.window.showInformationMessage(`${port}代理服务器已关闭`);
-            this._view?.webview.postMessage({
-              type: 'proxy',
-              value: { proxy: this.proxyList, port: null }
-            });
+          console.log(port, index);
+          this.proxyList[index].close();
+          this.proxyList.splice(index, 1);
+          this._view?.webview.postMessage({
+            type: 'clearLog',
+            value: [port]
+          });
+          vscode.window.showInformationMessage(`${port}代理服务器已关闭`);
+          this._view?.webview.postMessage({
+            type: 'proxy',
+            value: { proxy: this.proxyList, port: null }
           });
           break;
         }

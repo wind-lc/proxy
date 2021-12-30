@@ -3,7 +3,7 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-20 11:17:06
- * @LastEditTime: 2021-12-22 13:42:01
+ * @LastEditTime: 2021-12-22 17:33:33
  * @FilePath: \proxy\media\sidebarProvider.js
  */
 (function () {
@@ -11,7 +11,7 @@
   const proxyPort = document.querySelector('#proxy-port');
   const proxyTarget = document.querySelector('#proxy-target');
   const create = document.querySelector('.create-btn');
-  const log = document.querySelector('.log-container');
+  const logContainer = document.querySelector('.log-container');
   const clear = document.querySelector('.clear-btn');
   const list = document.querySelector('.proxy-list');
   //代理服务器列表
@@ -50,7 +50,7 @@
       }
       list.appendChild(item);
     });
-    // 绑定事件
+    // 显示日志
     document.querySelectorAll('.i-log').forEach(el => {
       el.onclick = (e) => {
         const node = e.target;
@@ -62,16 +62,21 @@
             li[i].removeAttribute('class');
           }
           node.parentNode.setAttribute('class', 'proxy-log');
-          log.innerHTML = logList[logPort] ? logList[logPort].join('') : '';
+          logContainer.innerHTML = logList[logPort] ? logList[logPort].join('') : '';
         }
       };
     });
+    // 关闭当前代理服务器
     document.querySelectorAll('.i-close').forEach(el => {
       el.onclick = (e) => {
+        const port = Number(e.target.parentNode.children[0].innerText);
+        if (port === logPort) {
+          logContainer.innerHTML = '';
+        }
         vs.postMessage({
           type: 'close',
           value: {
-            port: e.target.parentNode.children[0].innerText
+            port
           }
         });
       };
@@ -87,11 +92,15 @@
     // 增加
     if (logList.hasOwnProperty(port)) {
       logList[port].push(log);
+      if (logList[port].length >= 100) {
+        logList[port].shift();
+      }
     } else {
       // 新增
       logList[port] = [];
       logList[port].push(log);
     }
+    logContainer.innerHTML = logList[logPort] ? logList[logPort].join('') : '';
   };
   // 监听消息广播
   window.addEventListener('message', ({ data: { type, value } }) => {
@@ -101,9 +110,6 @@
         const { origin, host, target, method, url, port } = value;
         const text = `[${method}]${origin}=>${host}=>${target}${url}\n`;
         saveLog(port, text);
-        if (Number(port) === logPort) {
-          log.innerHTML += text;
-        }
         break;
       }
       // 清空日志
@@ -112,7 +118,7 @@
           delete logList[el];
         });
         if (value.includes(logPort)) {
-          log.innerHTML = '';
+          logContainer.innerHTML = '';
         }
         break;
       }
