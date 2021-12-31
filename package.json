@@ -3,9 +3,9 @@
 	"displayName": "proxy",
 	"description": "This is a proxy server",
 	"keywords": [
-		"proxy"
+		"vscode-proxy"
 	],
-	"version": "0.0.2",
+	"version": "0.0.1",
 	"publisher": "wind-lc",
 	"engines": {
 		"vscode": "^1.63.0"
