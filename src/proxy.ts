@@ -3,8 +3,8 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-21 17:33:38
- * @LastEditTime: 2021-12-22 12:44:50
- * @FilePath: \proxy\src\proxy.ts
+ * @LastEditTime: 2022-03-30 14:22:37
+ * @FilePath: \vscode-plugin\proxy\src\proxy.ts
  */
 import * as Koa from 'koa';
 import * as koaBodyparser from 'koa-bodyparser';
@@ -47,7 +47,6 @@ export default function (port: number, target: string, exportLog: Function): Pro
         console.log(`错误信息：创建失败${error.message}`);
         reject(`创建失败${error.message}`);
       }
-
     });
   });
 }

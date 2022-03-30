@@ -3,18 +3,18 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-20 11:06:45
- * @LastEditTime: 2021-12-22 17:39:29
+ * @LastEditTime: 2022-03-30 18:06:17
  * @FilePath: \proxy\src\SidebarProvider.ts
  */
-import { Server } from "node:http";
+
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
+import { IProxyLog } from "./interface";
 import proxy from "./proxy";
-
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
-  public proxyList: Server[] = [];
+  public proxyList: IProxyLog[] = [];
   constructor(private readonly _extensionUri: vscode.Uri) { }
   public resolveWebviewView(webviewView: vscode.WebviewView) {
     this._view = webviewView;
@@ -31,14 +31,24 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           proxy(port, target, (log: any) => {
             const { request: { header: { origin, host }, method, url }, target } = log;
             const arr = host.split(':');
+            const port = Number(arr[arr.length - 1]);
+            this.proxyList = this.proxyList.map(el => {
+              const l = el.proxy._connectionKey.split(':');
+              const p = Number(l[l.length - 1]);
+              if (port === p) {
+                el.log += `[${method}]${origin}=>${host}=>${target}${url}\n`;
+              }
+              return el;
+            });
             this._view?.webview.postMessage({
               type: 'log',
-              value: {
-                origin, host, target, method, url, port: arr[arr.length - 1]
-              }
+              value: this.proxyList
             });
           }).then(({ proxy, info }) => {
-            this.proxyList.push(proxy);
+            this.proxyList.push({
+              proxy,
+              log: ''
+            });
             vscode.window.showInformationMessage(info, '知道了');
             this._view?.webview.postMessage({
               type: 'proxy',
@@ -49,35 +59,20 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           });
           break;
         }
-        // 清空日志
-        case 'clear': {
-          const { list } = data.value;
-          vscode.window.showQuickPick(
-            list,
-            {
-              canPickMany: true,
-              ignoreFocusOut: true,
-              placeHolder: '选择需要清空日志的代理服务器',
-              title: '清空日志'
-            }).then(list => {
-              this._view?.webview.postMessage({
-                type: 'clearLog',
-                value: list
-              });
-            });
+        // 读取代理
+        case 'load': {
+          this._view?.webview.postMessage({
+            type: 'load',
+            value: { proxy: this.proxyList }
+          });
           break;
         }
         // 关闭代理服务器
         case 'close': {
           const { port } = data.value;
-          const index = this.proxyList.findIndex(el => JSON.parse(JSON.stringify(el))._connectionKey.indexOf(port) > 0);
-          console.log(port, index);
-          this.proxyList[index].close();
+          const index = this.proxyList.findIndex(el => el.proxy._connectionKey.indexOf(port) > 0);
+          this.proxyList[index].proxy.close();
           this.proxyList.splice(index, 1);
-          this._view?.webview.postMessage({
-            type: 'clearLog',
-            value: [port]
-          });
           vscode.window.showInformationMessage(`${port}代理服务器已关闭`);
           this._view?.webview.postMessage({
             type: 'proxy',
@@ -134,7 +129,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           <ul class="proxy-list"></ul>
           <p class="proxy-title">日志详情：</p>
           <textarea class="log-container" readonly></textarea>
-          <button class="clear-btn">清空日志</button>
         </main>
         <script src="${scriptUri}" nonce="${nonce}"></script>
 			</body>

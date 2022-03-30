@@ -3,7 +3,7 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-20 11:17:06
- * @LastEditTime: 2021-12-22 17:33:33
+ * @LastEditTime: 2022-03-30 18:04:37
  * @FilePath: \proxy\media\sidebarProvider.js
  */
 (function () {
@@ -12,14 +12,23 @@
   const proxyTarget = document.querySelector('#proxy-target');
   const create = document.querySelector('.create-btn');
   const logContainer = document.querySelector('.log-container');
-  const clear = document.querySelector('.clear-btn');
   const list = document.querySelector('.proxy-list');
   //代理服务器列表
   let proxyList = [];
   // 当前日志输出端口
   let logPort = null;
-  // 日志列表
-  const logList = {};
+  /**
+   * @description: 存储日志
+   * @param {Array} list 代理列表
+   * @return {void}
+   */
+  const saveLog = (list) => {
+    logContainer.innerHTML = list.find(el => {
+      const l = el.proxy._connectionKey.split(':');
+      const p = Number(l[l.length - 1]);
+      return logPort === p;
+    })?.log;
+  };
   /**
    * @description: 更新代理服务器列表
    * @return {void}
@@ -40,7 +49,7 @@
     li.appendChild(i1);
     li.appendChild(i2);
     list.innerHTML = '';
-    proxyList.forEach(({ _connectionKey }) => {
+    proxyList.forEach(({ proxy: { _connectionKey } }) => {
       const arr = _connectionKey.split(':');
       const port = Number(arr[arr.length - 1]);
       p.innerText = port;
@@ -62,17 +71,18 @@
             li[i].removeAttribute('class');
           }
           node.parentNode.setAttribute('class', 'proxy-log');
-          logContainer.innerHTML = logList[logPort] ? logList[logPort].join('') : '';
+          saveLog(proxyList);
         }
       };
     });
     // 关闭当前代理服务器
-    document.querySelectorAll('.i-close').forEach(el => {
+    document.querySelectorAll('.i-close').forEach((el, index) => {
       el.onclick = (e) => {
         const port = Number(e.target.parentNode.children[0].innerText);
         if (port === logPort) {
           logContainer.innerHTML = '';
         }
+        proxyList.splice(index, 1);
         vs.postMessage({
           type: 'close',
           value: {
@@ -82,52 +92,34 @@
       };
     });
   };
-  /**
-   * @description: 存储日志
-   * @param {number} port 端口
-   * @param {string} log 日志信息
-   * @return {void}
-   */
-  const saveLog = (port, log) => {
-    // 增加
-    if (logList.hasOwnProperty(port)) {
-      logList[port].push(log);
-      if (logList[port].length >= 100) {
-        logList[port].shift();
-      }
-    } else {
-      // 新增
-      logList[port] = [];
-      logList[port].push(log);
-    }
-    logContainer.innerHTML = logList[logPort] ? logList[logPort].join('') : '';
-  };
   // 监听消息广播
   window.addEventListener('message', ({ data: { type, value } }) => {
     switch (type) {
       // 日志
       case 'log': {
-        const { origin, host, target, method, url, port } = value;
-        const text = `[${method}]${origin}=>${host}=>${target}${url}\n`;
-        saveLog(port, text);
-        break;
-      }
-      // 清空日志
-      case 'clearLog': {
-        value.forEach(el => {
-          delete logList[el];
-        });
-        if (value.includes(logPort)) {
-          logContainer.innerHTML = '';
-        }
+        proxyList = value;
+        saveLog(value);
         break;
       }
       // 代理
       case 'proxy': {
         const { proxy, port } = value;
-        proxyList = proxy.reverse();
+        proxyList = proxy;
         logPort = Number(port);
         updateList();
+        break;
+      }
+      // 读取代理
+      case 'load': {
+        const { proxy } = value;
+        proxyList = proxy;
+        if (proxyList.length > 0) {
+          const arr = proxyList[0].proxy._connectionKey.split(':');
+          const port = Number(arr[arr.length - 1]);
+          logPort = port;
+          updateList();
+          saveLog(proxyList);
+        }
         break;
       }
     }
@@ -139,6 +131,8 @@
     const target = proxyTarget.value;
     if (!isNaN(port) && port > 0 && port <= 65535) {
       if (reg.test(target)) {
+        proxyPort.value = null;
+        proxyTarget.value = null;
         vs.postMessage({
           type: 'create',
           value: {
@@ -159,16 +153,16 @@
       });
     }
   };
-  // 清空日志
-  clear.onclick = () => {
+  /**
+   * @description: 读取代理
+   * @param {void}
+   * @return {void}
+   */
+  const loadProxy = function () {
     vs.postMessage({
-      type: 'clear',
-      value: {
-        list: proxyList.map(el => {
-          const arr = el._connectionKey.split(':');
-          return arr[arr.length - 1];
-        })
-      }
+      type: 'load',
+      value: {}
     });
   };
+  loadProxy();
 }());

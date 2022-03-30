@@ -1,13 +1,13 @@
 {
-	"name": "proxy",
-	"displayName": "proxy",
+	"name": "miecz",
+	"displayName": "miecz",
 	"description": "This is a proxy server",
 	"keywords": [
-		"proxy",
+		"miecz",
 		"vscode-proxy",
 		"wind-lc"
 	],
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"publisher": "wind-lc",
 	"engines": {
 		"vscode": "^1.63.0"
