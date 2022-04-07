@@ -3,7 +3,7 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-20 11:06:45
- * @LastEditTime: 2022-03-30 18:06:17
+ * @LastEditTime: 2022-04-01 11:22:30
  * @FilePath: \proxy\src\SidebarProvider.ts
  */
 
@@ -49,7 +49,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
               proxy,
               log: ''
             });
-            vscode.window.showInformationMessage(info, '知道了');
+            vscode.window.showInformationMessage(info);
             this._view?.webview.postMessage({
               type: 'proxy',
               value: { proxy: this.proxyList, port }

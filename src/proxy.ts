@@ -3,8 +3,8 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-21 17:33:38
- * @LastEditTime: 2022-03-30 14:22:37
- * @FilePath: \vscode-plugin\proxy\src\proxy.ts
+ * @LastEditTime: 2022-04-01 11:11:42
+ * @FilePath: \proxy\src\proxy.ts
  */
 import * as Koa from 'koa';
 import * as koaBodyparser from 'koa-bodyparser';
@@ -13,9 +13,9 @@ const k2c = require('koa2-connect');
 import * as path from 'path';
 import * as koaStatic from 'koa-static';
 import { IProxyServer } from './interface';
-const app = new Koa();
 
 export default function (port: number, target: string, exportLog: Function): Promise<IProxyServer> {
+  const app = new Koa();
   return new Promise((resolve, reject) => {
     app
       .use(async (ctx: any, next: () => any) => {

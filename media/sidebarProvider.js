@@ -3,7 +3,7 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-20 11:17:06
- * @LastEditTime: 2022-03-30 18:04:37
+ * @LastEditTime: 2022-04-01 11:12:05
  * @FilePath: \proxy\media\sidebarProvider.js
  */
 (function () {
