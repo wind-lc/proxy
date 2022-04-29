@@ -46,6 +46,7 @@ i>svg>use {
   position: relative;
 }
 
+
 .proxy-run::before {
   content: "";
   position: absolute;
@@ -117,6 +118,14 @@ i>svg>use {
   width: 14px;
   height: 14px;
   fill: var(--vscode-foreground);
+}
+
+.proxy-list li:hover {
+  color: var(--vscode-button-foreground);
+}
+
+.proxy-list li:hover>i svg {
+  fill: var(--vscode-button-foreground);
 }
 
 .log-container {
@@ -341,4 +350,8 @@ i>svg>use {
   width: 14px;
   height: 14px;
   fill: var(--vscode-foreground);
+}
+
+.delete-log {
+  margin-bottom: 10px;
 }

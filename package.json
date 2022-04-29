@@ -7,7 +7,7 @@
 		"vscode-proxy",
 		"wind-lc"
 	],
-	"version": "0.1.20220429",
+	"version": "0.1.202204291",
 	"publisher": "wind-lc",
 	"engines": {
 		"vscode": "^1.63.0"
