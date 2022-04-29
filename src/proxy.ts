@@ -3,7 +3,7 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-21 17:33:38
- * @LastEditTime: 2022-04-01 11:11:42
+ * @LastEditTime: 2022-04-28 16:21:38
  * @FilePath: \proxy\src\proxy.ts
  */
 import * as Koa from 'koa';
@@ -25,7 +25,7 @@ export default function (port: number, target: string, exportLog: Function): Pro
             changeOrigin: true
           })
         )(ctx, next);
-        const log = JSON.parse(JSON.stringify(ctx));
+        const log = ctx;
         log.target = target;
         exportLog(log);
         await next();
@@ -37,9 +37,11 @@ export default function (port: number, target: string, exportLog: Function): Pro
       )
       .use(koaStatic(path.join(__dirname, 'html')));
     const proxy = app.listen(port, () => {
-      console.log(`端口${port}代理服务器已启动`);
-      resolve({ proxy, info: `端口${port}代理服务器已启动` });
+      console.log(`端口${port}代理服务器正在运行`);
+      resolve({ proxy, info: `端口${port}代理服务器正在运行` });
     }).on('error', (error: Error) => {
+      console.log(error);
+      console.log('关闭失败');
       if (error.message.indexOf('address already in use')) {
         console.log(`错误信息：创建失败端口${port}已被占用`);
         reject(`端口${port}已被占用`);
