@@ -3,7 +3,7 @@
  * @Author: wind-lc
  * @version: 1.0
  * @Date: 2021-12-20 11:06:45
- * @LastEditTime: 2022-04-29 10:14:04
+ * @LastEditTime: 2022-06-23 15:53:24
  * @FilePath: \proxy\src\SidebarProvider.ts
  */
 
@@ -210,19 +210,19 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
               title: '清空日志'
             }).then((list = []) => {
               if (list.length > 0) {
-                this.globalState.update('proxyList', proxyList.map(el => {
+                const arr = JSON.parse(JSON.stringify(proxyList.map(el => {
                   if (list.includes(el.port.toString())) {
                     el.log = [];
                   }
                   return el;
-                }));
+                })));
+                this.globalState.update('proxyList', arr);
                 vscode.window.showInformationMessage(`代理服务器${list.join(',')}的日志已清空`);
                 this._view?.webview.postMessage({
                   type: 'log',
                   value: { proxy: this.getProxyList() }
                 });
               }
-
             });
           break;
         }
